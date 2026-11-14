@@ -38,7 +38,8 @@ export type WorkflowNode =
       requestRef: { id: string };
       bindings: Record<string, ValueSpec>;
     })
-  | (NodeIdentity & { type: 'condition' | 'assert'; predicate: Predicate })
+  | (NodeIdentity & { type: 'condition'; predicate: Predicate })
+  | (NodeIdentity & { type: 'assert'; predicate: Predicate })
   | (NodeIdentity & {
       type: 'repeat';
       maxIterations: number;

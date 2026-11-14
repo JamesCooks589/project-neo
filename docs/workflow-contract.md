@@ -5,9 +5,9 @@ structural JSON Schema is in schemas/workflow-bundle.schema.json.
 examples/job-polling.bundle.json contains all three saved requests and the complete
 create-job, branch, bounded-poll, result and assertion graph.
 
-This milestone validates definitions. It does not execute requests or predicates.
-The execution semantics below are the contract the next runner milestone will
-implement.
+The contract now supports both definition validation and headless execution.
+See [the runner guide](headless-runner.md) for the local HTTP demo, execution
+reports, runtime limits and current implementation boundaries.
 
 ## Public API
 
@@ -18,7 +18,8 @@ After building, the private npm workspace exports:
 - validateWorkflowBundle(input) for structural and semantic checks on a complete
   bundle.
 - bundleJsonSchema() for a JSON-serializable structural schema.
-- TypeScript types for definitions, values, predicates and validation results.
+- runWorkflow, typed transport/secret/event boundaries and runtime resolution.
+- TypeScript types for definitions, values, predicates, validation and run results.
 
 Validation returns either an object with ok: true and a parsed value, or ok: false
 and an errors array. Each error includes code, message and a path array; semantic
@@ -46,7 +47,10 @@ Saved requests support standard HTTP methods, an HTTP(S) base, a slash-prefixed
 path, ordered header/query entries, JSON/text bodies, authentication configuration
 and a positive timeout. Path placeholders such as /jobs/{jobId} must name
 declared request inputs. Query parameters are separate from the path. Runtime URL
-encoding, dispatch and authentication are not implemented yet.
+encoding, dispatch and Basic/Bearer/API-key preparation are implemented by the
+runner and its separate HTTP adapter. Runtime URL bases exclude embedded
+credentials, query and fragments. Header/query values must resolve to scalars;
+text bodies and auth fields require strings.
 
 ## Graphs
 
@@ -96,16 +100,16 @@ the repeat's exported output, not the nodes inside its body.
 
 The same availability rule applies inside exists. At runtime exists will handle
 missing response fields; it does not make future or skipped-branch nodes into
-valid static sources. Runtime response paths and unknown data types are not
-validated by this milestone.
+valid static sources. Definition validation cannot inspect dynamic response
+fields; the runner checks required paths and operand types as they are used.
 
 ## Predicates
 
 Supported operators are eq, neq, gt, gte, lt, lte, exists, contains, and, or and
 not. Equality uses JSON values without string/number coercion. Numeric comparison
 operands must be numbers. contains takes an array and a primitive JSON value.
-Boolean groups must contain at least one predicate. Future evaluation will
-short-circuit and/or in declared order.
+Boolean groups must contain at least one predicate. Evaluation short-circuits
+and/or in declared order.
 
 ## JSON Schema and verification
 

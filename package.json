@@ -10,18 +10,21 @@
     "npm": ">=11 <13"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "tools/*"
   ],
   "scripts": {
-    "build": "node scripts/clean.cjs --build-only && npm run build --workspaces --if-present",
+    "build": "node scripts/build.cjs",
     "clean": "node scripts/clean.cjs",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build && npm run typecheck --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "npm run build && jest --runInBand",
     "test:ci": "npm run build && node -e \"require('node:fs').mkdirSync('test-results',{recursive:true})\" && jest --ci --runInBand --coverage --json --outputFile=test-results/jest.json",
     "schema:export": "npm run build && node scripts/export-schema.cjs",
     "schema:check": "npm run build && node scripts/export-schema.cjs --check",
+    "demo": "npm run build && node tools/runner/dist/src/cli.js",
+    "fixture": "npm run build && node tools/fixture-api/dist/src/cli.js",
     "check": "npm run format:check && npm run typecheck && npm run test:ci && npm run schema:check"
   },
   "devDependencies": {

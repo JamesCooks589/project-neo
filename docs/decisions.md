@@ -27,4 +27,41 @@ use npm audit to inspect them and npm audit --omit=dev for the runtime tree.
 
 ## Still open
 
-SQLite driver, Electron packaging targets, MCP process bridge, editor design, final branding and release policy remain open. Storage, networking, the runner and the desktop application are not implemented in this milestone.
+SQLite driver, Electron packaging targets, MCP process bridge, editor design,
+final branding and release policy remain open. Storage, the desktop application
+and MCP integration are not implemented yet.
+
+## 2026-11-14: headless execution and fixture
+
+- **Boundaries:** Keep interpretation, values, predicates and event contracts in
+  workflow-core. Use a separate Undici 8 HTTP adapter and separate fixture/runner
+  tooling workspaces. Build in dependency order, including fixture types used by
+  transport tests.
+- **Real execution:** Adopt the validated example without changing its JSON
+  contract. Use sequential exclusive branching and fresh repeat-body scopes.
+  Successful runs make three polls; never-completing jobs stop after five.
+- **Snapshots and history:** Capture a parsed definition copy and input/environment
+  configuration before execution. Retain a unique invocation for every node
+  attempt and monotonically ordered events. Export redacted diagnostic copies.
+- **Failures:** Received HTTP statuses are ordinary responses. Assertion/end
+  failures are failed, transport/input/time-limit problems are errored, and
+  cancellation is cancelled. Invalid definitions reject before dispatch.
+- **Timing:** Enforce saved request deadlines, a global run deadline and an
+  invocation budget. Use cancellable delays, chunk long timers, and stop awaiting
+  uncooperative injected adapters when aborted. No trailing loop delay.
+- **HTTP:** Use an agent without redirect/retry interceptors. Keep raw bounded
+  bytes, parsed JSON and display previews separate. Default limits are 1 MiB for
+  responses/JSON parsing and 8 KiB for previews.
+- **Request preparation:** Resolve inputs before dispatch, encode dynamic path
+  segments, reject dot-only dynamic segments and invalid headers, and keep base
+  URL credentials/query/fragments out of the base. Auth configuration overrides
+  duplicate corresponding headers/query values.
+- **Credentials:** Resolve secret references through an injected local resolver,
+  caching values per run. Redact auth values, sensitive field/header names and
+  known secrets in live/stored diagnostics. Omit encoded bodies when redaction is
+  needed; field-name recognition remains heuristic.
+- **Fixture:** Bind to loopback, keep counters per job and create a fresh fixture
+  for the self-contained demo. Add predictable rejection, exhaustion, missing-ID,
+  wrong-result, slow-response and disconnection variants.
+- **CLI:** Provide npm run demo and npm run fixture. Save complete reports under
+  tmp/runs by default. Use exit codes 0/1/2/130 for passed/failed/errored/cancelled.
