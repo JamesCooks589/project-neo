@@ -1,0 +1,277 @@
+{
+  "bundleVersion": 1,
+  "requests": [
+    {
+      "id": "req_create_job",
+      "revision": 1,
+      "name": "Create job",
+      "method": "POST",
+      "url": {
+        "base": {
+          "kind": "environment",
+          "name": "baseUrl"
+        },
+        "path": "/jobs"
+      },
+      "body": {
+        "kind": "json",
+        "value": {
+          "kind": "literal",
+          "value": {
+            "mode": "success",
+            "completeAfterPolls": 3
+          }
+        }
+      }
+    },
+    {
+      "id": "req_get_job",
+      "revision": 1,
+      "name": "Get job status",
+      "method": "GET",
+      "inputs": {
+        "jobId": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "url": {
+        "base": {
+          "kind": "environment",
+          "name": "baseUrl"
+        },
+        "path": "/jobs/{jobId}"
+      }
+    },
+    {
+      "id": "req_get_result",
+      "revision": 1,
+      "name": "Get result",
+      "method": "GET",
+      "inputs": {
+        "jobId": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "url": {
+        "base": {
+          "kind": "environment",
+          "name": "baseUrl"
+        },
+        "path": "/jobs/{jobId}/result"
+      }
+    }
+  ],
+  "workflow": {
+    "schemaVersion": 1,
+    "id": "wf_job_polling",
+    "revision": 1,
+    "name": "Create and verify a job",
+    "inputs": {
+      "expectedRecordId": {
+        "type": "string",
+        "default": "record_123"
+      }
+    },
+    "environmentRequirements": ["baseUrl"],
+    "limits": {
+      "maxRunDurationMs": 30000,
+      "maxNodeInvocations": 40
+    },
+    "entryNodeId": "create_job",
+    "nodes": [
+      {
+        "id": "create_job",
+        "type": "request",
+        "requestRef": {
+          "id": "req_create_job"
+        }
+      },
+      {
+        "id": "job_accepted",
+        "type": "condition",
+        "predicate": {
+          "op": "eq",
+          "left": {
+            "kind": "stepOutput",
+            "nodeId": "create_job",
+            "path": "/response/status"
+          },
+          "right": {
+            "kind": "literal",
+            "value": 202
+          }
+        }
+      },
+      {
+        "id": "wait_for_job",
+        "type": "repeat",
+        "maxIterations": 5,
+        "intervalMs": 1000,
+        "body": {
+          "entryNodeId": "poll_request",
+          "nodes": [
+            {
+              "id": "poll_request",
+              "type": "request",
+              "requestRef": {
+                "id": "req_get_job"
+              },
+              "bindings": {
+                "jobId": {
+                  "kind": "stepOutput",
+                  "nodeId": "create_job",
+                  "path": "/response/json/jobId"
+                }
+              }
+            },
+            {
+              "id": "poll_status_ok",
+              "type": "assert",
+              "predicate": {
+                "op": "eq",
+                "left": {
+                  "kind": "stepOutput",
+                  "nodeId": "poll_request",
+                  "path": "/response/status"
+                },
+                "right": {
+                  "kind": "literal",
+                  "value": 200
+                }
+              }
+            },
+            {
+              "id": "return_poll",
+              "type": "return",
+              "value": {
+                "kind": "stepOutput",
+                "nodeId": "poll_request",
+                "path": ""
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "poll_request",
+              "port": "response",
+              "to": "poll_status_ok"
+            },
+            {
+              "from": "poll_status_ok",
+              "port": "pass",
+              "to": "return_poll"
+            }
+          ]
+        },
+        "until": {
+          "op": "eq",
+          "left": {
+            "kind": "bodyResult",
+            "path": "/response/json/state"
+          },
+          "right": {
+            "kind": "literal",
+            "value": "completed"
+          }
+        }
+      },
+      {
+        "id": "download_result",
+        "type": "request",
+        "requestRef": {
+          "id": "req_get_result"
+        },
+        "bindings": {
+          "jobId": {
+            "kind": "stepOutput",
+            "nodeId": "create_job",
+            "path": "/response/json/jobId"
+          }
+        }
+      },
+      {
+        "id": "result_valid",
+        "type": "assert",
+        "predicate": {
+          "op": "and",
+          "args": [
+            {
+              "op": "eq",
+              "left": {
+                "kind": "stepOutput",
+                "nodeId": "download_result",
+                "path": "/response/status"
+              },
+              "right": {
+                "kind": "literal",
+                "value": 200
+              }
+            },
+            {
+              "op": "contains",
+              "left": {
+                "kind": "stepOutput",
+                "nodeId": "download_result",
+                "path": "/response/json/recordIds"
+              },
+              "right": {
+                "kind": "workflowInput",
+                "name": "expectedRecordId"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "passed",
+        "type": "end",
+        "outcome": "passed"
+      },
+      {
+        "id": "failed",
+        "type": "end",
+        "outcome": "failed",
+        "reason": "Job rejected or polling limit reached"
+      }
+    ],
+    "edges": [
+      {
+        "from": "create_job",
+        "port": "response",
+        "to": "job_accepted"
+      },
+      {
+        "from": "job_accepted",
+        "port": "true",
+        "to": "wait_for_job"
+      },
+      {
+        "from": "job_accepted",
+        "port": "false",
+        "to": "failed"
+      },
+      {
+        "from": "wait_for_job",
+        "port": "completed",
+        "to": "download_result"
+      },
+      {
+        "from": "wait_for_job",
+        "port": "exhausted",
+        "to": "failed"
+      },
+      {
+        "from": "download_result",
+        "port": "response",
+        "to": "result_valid"
+      },
+      {
+        "from": "result_valid",
+        "port": "pass",
+        "to": "passed"
+      }
+    ]
+  }
+}

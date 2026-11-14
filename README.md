@@ -27,11 +27,51 @@ This project is intended for learning, personal use, and as a portfolio piece.
 - GitHub Actions for continuous integration and future release automation.
 - Docker for local test APIs and headless tooling, alongside a native desktop application.
 
-These are planned capabilities. No application code, test suites, containers, or CI workflows are included yet.
+Jest tests and the workflow contract are implemented. Desktop tests, containers,
+and release automation will follow their corresponding application features.
 
 ## Status
 
-Initial repository setup. Implementation, development commands, and runnable examples will follow in later commits.
+The first core milestone provides:
+
+- An isolated TypeScript workflow-core package with Zod schemas.
+- Structural and semantic validation for complete workflow bundles.
+- Checks for connections, cycles, bounded loops, typed inputs and output scope.
+- A portable job-polling example and generated JSON Schema.
+- Jest tests for valid definitions and failure cases.
+
+The runner, local test API, desktop application, persistence and MCP adapter are
+not implemented yet. The example can be validated but cannot be executed yet.
+
+## Development
+
+Use Node.js 24 and npm 11 or 12.
+
+```sh
+npm ci
+npm run check
+```
+
+On Windows PowerShell, use npm.cmd if execution policy prevents npm.ps1 from
+running.
+
+| Command               | Purpose                                            |
+| --------------------- | -------------------------------------------------- |
+| npm run build         | Compile the core and its tests.                    |
+| npm run typecheck     | Run strict TypeScript checks.                      |
+| npm test              | Build and run Jest tests.                          |
+| npm run test:ci       | Run tests with coverage and a JSON results report. |
+| npm run format        | Format project files.                              |
+| npm run format:check  | Check formatting.                                  |
+| npm run schema:export | Regenerate the structural JSON Schema.             |
+| npm run schema:check  | Check that the exported schema is current.         |
+| npm run check         | Run the complete local verification sequence.      |
+
+Tests run against compiled JavaScript. Coverage is written to coverage/ and
+machine-readable test results to test-results/. Neither is committed.
+
+See the [workflow contract](docs/workflow-contract.md) and
+[implementation decisions](docs/decisions.md).
 
 ## Author
 

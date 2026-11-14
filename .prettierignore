@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+test-results/
+tmp/
+package-lock.json
+LICENSE
+schemas/workflow-bundle.schema.json
