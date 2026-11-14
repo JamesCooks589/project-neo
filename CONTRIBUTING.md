@@ -1,7 +1,8 @@
 # Contributing
 
-Project Neo is at the workflow-contract stage. The next planned milestone is a
-local fixture API and headless execution of the job-polling example.
+Project Neo has a working headless runner and local HTTP fixture. The next
+planned milestone is the desktop shell, shared application service and local
+persistence around that engine.
 
 ## Set up and verify
 
@@ -16,21 +17,27 @@ Use npm.cmd on Windows PowerShell if script policy prevents npm.ps1 from running
 
 The check command verifies formatting, strict types, a clean build, Jest tests
 with coverage, and the generated JSON Schema. CI runs these checks on Windows
-and Linux and stores test/coverage reports for 14 days. Action versions are pinned
-to upstream commit SHAs; update those pins deliberately.
+and Linux and stores test/coverage reports for 14 days. It also runs the local
+HTTP demo and saves its complete trace as test-results/demo-run.json in the
+reports artifact. Action versions are pinned to upstream commit SHAs; update
+those pins deliberately.
+
+Use npm run demo to try the default example, or npm run fixture to start the
+standalone test API. See docs/headless-runner.md for controlled failure scenarios.
 
 ## Change the workflow contract
 
 1. Edit schemas/types in packages/workflow-core/src/schema.ts and semantic checks
-   in packages/workflow-core/src/validate.ts.
+   in packages/workflow-core/src/validate.ts. Execution, values and predicates
+   live alongside these modules; HTTP I/O belongs to the separate adapter.
 2. Update the example and the contract documentation when behaviour changes.
 3. Add tests for the behaviour and failure cases that the change affects.
 4. Regenerate structural schema output with npm run schema:export.
 5. Run npm run format and npm run check.
 
 The current version is a draft. Keep source types, structural schema, semantic
-checks, examples and documentation consistent. Validators must not send requests
-or depend on React or Electron.
+checks, examples, runner semantics and documentation consistent. Validators must
+not send requests. The engine must not depend on React, Electron or Undici.
 
 Tests are authored in TypeScript and run against emitted JavaScript. The root
 build removes only known build output before compiling, preventing stale deleted

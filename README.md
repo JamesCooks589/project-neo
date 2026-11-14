@@ -103,8 +103,9 @@ See the [workflow contract](docs/workflow-contract.md) and
 [implementation decisions](docs/decisions.md).
 
 GitHub Actions checks formatting, types, tests, coverage and schema export on
-Windows and Linux for pushes to main and pull requests. Reports are saved as
-workflow artifacts. See [contributing](CONTRIBUTING.md) for the change workflow.
+Windows and Linux for pushes to main and pull requests. It also runs the local
+HTTP demo and saves its execution trace with the test reports as workflow
+artifacts. See [contributing](CONTRIBUTING.md) for the change workflow.
 
 ## Author
 

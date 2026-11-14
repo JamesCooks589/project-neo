@@ -45,6 +45,8 @@ jobs:
         run: npm run test:ci
       - name: Check exported JSON Schema
         run: npm run schema:check
+      - name: Run the local HTTP demo
+        run: npm run demo -- --interval-ms 0 --report test-results/demo-run.json
       - name: Save test and coverage reports
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
