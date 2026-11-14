@@ -13,7 +13,7 @@
 - **Availability:** A referenced output must be guaranteed to complete before its consumer on every incoming path. Loop bodies may also read guaranteed upstream ancestor outputs. This is conservative static checking; it does not infer the truth of user predicates.
 - **Limits and defaults:** Require explicit positive run duration/invocation limits and repeat bounds. Default request timeouts to 30 seconds; default optional inputs, bindings, headers and query collections to empty. Input declarations default to optional. A required input may be supplied by a default.
 - **Validation boundaries:** Structural schemas reject unknown fields. Semantic validation checks graph, references, scope and statically known types. Dynamic response paths and types require a future runner. Validation never dispatches HTTP.
-- **Portability:** Commit a generated JSON Schema and the complete job-polling example. CI will check that the exported schema matches the Zod source.
+- **Portability:** Commit a generated JSON Schema and the complete job-polling example. CI checks that the exported schema matches the Zod source.
 - **Verification:** Use Jest for current contract/validator behaviour. Playwright will exercise real desktop flows once the UI exists. Docker will support the fixture API and headless tooling in a later milestone.
 - **Schema portability:** Test the committed JSON Schema with Ajv independently of Zod. Express the URL path prefix with a standard pattern rather than a library-specific format.
 

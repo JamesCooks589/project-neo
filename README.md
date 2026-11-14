@@ -1,5 +1,7 @@
 # Project Neo
 
+[![CI](https://github.com/JamesCooks589/project-neo/actions/workflows/ci.yml/badge.svg)](https://github.com/JamesCooks589/project-neo/actions/workflows/ci.yml)
+
 A personal, open-source desktop project for creating, running, and inspecting visual API workflows. Project Neo is a working name.
 
 ## The idea
@@ -27,7 +29,7 @@ This project is intended for learning, personal use, and as a portfolio piece.
 - GitHub Actions for continuous integration and future release automation.
 - Docker for local test APIs and headless tooling, alongside a native desktop application.
 
-Jest tests and the workflow contract are implemented. Desktop tests, containers,
+Jest tests, the workflow contract and GitHub Actions CI are implemented. Desktop tests, containers,
 and release automation will follow their corresponding application features.
 
 ## Status
@@ -72,6 +74,10 @@ machine-readable test results to test-results/. Neither is committed.
 
 See the [workflow contract](docs/workflow-contract.md) and
 [implementation decisions](docs/decisions.md).
+
+GitHub Actions checks formatting, types, tests, coverage and schema export on
+Windows and Linux for pushes to main and pull requests. Reports are saved as
+workflow artifacts. See [contributing](CONTRIBUTING.md) for the change workflow.
 
 ## Author
 
